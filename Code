@@ -1,6 +1,6 @@
 #include <WiFiNINA.h>
 #include <ThingSpeak.h>
-
+// Use the library ThingSpeak and WiFiNina
 // Replace with your network credentials
 const char* ssid = "ssid";
 const char* password = "password";
