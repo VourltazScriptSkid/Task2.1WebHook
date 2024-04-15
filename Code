@@ -1,0 +1,66 @@
+#include <WiFiNINA.h>
+#include <ThingSpeak.h>
+
+// Replace with your network credentials
+const char* ssid = "ssid";
+const char* password = "password";
+
+// ThingSpeak Settings
+unsigned long myChannelNumber = 2499138;
+const char* myWriteAPIKey = "O2LSZZOPGTH4IBQC";
+
+// HC-SR04 Pin configuration
+const int trigPin = 12;
+const int echoPin = 11;
+
+// Variables for the duration and the distance
+long duration;
+int distance;
+
+WiFiClient client;
+
+void setup() {
+  Serial.begin(9600);
+  
+  // Initialize the HC-SR04 pins
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+
+  // Connect to Wi-Fi
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  
+  // Initialize ThingSpeak
+  ThingSpeak.begin(client);
+}
+
+void loop() {
+  // Clear the trigPin by setting it LOW
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(5);
+  
+  // Trigger the sensor by setting the trigPin high for 10 microseconds
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  
+  // Read the echoPin, returns the sound wave travel time in microseconds
+  duration = pulseIn(echoPin, HIGH);
+  
+  // Calculate the distance
+  distance = duration * 0.034 / 2;
+  
+  // Print the distance on the Serial Monitor
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+  
+  // Write the distance to ThingSpeak
+  ThingSpeak.writeField(myChannelNumber, 1, distance, myWriteAPIKey);
+  
+  // Delay a second for next measurement
+  delay(1000);
+}
